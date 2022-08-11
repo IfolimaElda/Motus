@@ -37,6 +37,8 @@ from tkinter import *                               # module pour IHM python
 # Variables
 #----------
 dictionnaire="dictionnaire.lst"
+vals=[5,6,7,8,9]                    # les differents niveau du jeu à x lettres.
+
 
 # on recupere l'emplacement du rep_script
 # on se deplace dans ce repertoire qui devient le repertoire de travail
@@ -48,10 +50,30 @@ os.chdir(rep_script)
 # FONCTIONS #
 #===========#
 def new_game():
-    frame_nbLettre.config(state='disabled')
-    print(varGr.get())
+    tour=1
+    radiobutton_state(False)
+    print(var_nbLettre.get())
+    return tour
 
+def saisi():
+    print(var_saisi.get())
+    label_mot_{tour}.config(text=var_saisi.get())
 
+    tour+=1
+
+def abandon():
+    radiobutton_state(True)
+    print("Espece de nul")
+
+def radiobutton_state(status):
+    for i in range(len(vals)):
+        if status:
+            rBouton=Radiobutton(frame_nbLettre, variable=var_nbLettre, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3)
+            button_newGame.config(state="normal")
+        else:
+            rBouton=Radiobutton(frame_nbLettre, variable=var_nbLettre, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3, state="disabled")
+            button_newGame.config(state="disabled")
+        rBouton.grid(row=2,column=i)
 
 
 #====================#
@@ -88,25 +110,26 @@ label_mot_6.grid(row=6)
 
 # zone de choix du nombre de lettres
 #-----------------------------------
-def new_game():
-    frame_nbLettre.config(state='disabled')
-    print(varGr.get())
-
 frame_nbLettre=Frame(root)
 frame_nbLettre.grid(row=1,column=2)
 label_nbLettre=Label(frame_nbLettre, text="choisissez du nombre de lettres")
 label_nbLettre.grid(row=1)
-vals=[5,6,7,8,9]
-varGr=IntVar(frame_nbLettre,vals[0])
-for i in range(len(vals)):
-    rBouton=Radiobutton(frame_nbLettre, variable=varGr, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3)
-    rBouton.grid(row=2,column=i)
-button_newGame=Button(root, text="Nouvelle partie",command=new_game)
+button_newGame=Button(frame_nbLettre, text="Nouvelle partie",command=new_game)
 button_newGame.grid(row=3)
+var_nbLettre=IntVar(frame_nbLettre,vals[0])
+radiobutton_state(True)
 
-
-
-
+# zone de saisi
+#--------------
+frame_saisi=Frame(root)
+frame_saisi.grid(row=2,column=2)
+var_saisi=StringVar()
+entry_saisi=Entry(frame_saisi, textvariable=var_saisi, width=25)
+entry_saisi.grid(row=1,column=1)
+button_valide=Button(frame_saisi, text="Valider",command=saisi)
+button_valide.grid(row=3,column=1)
+button_abandon=Button(frame_saisi, text="Abandonner",command=abandon)
+button_abandon.grid(row=3,column=2)
 
 root.mainloop()
 #==================#
