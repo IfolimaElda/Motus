@@ -31,9 +31,9 @@
 import os,sys,glob,pathlib							# os : utiliser les fonctionnalites dependantes du systeme d'exploitation // sys : fournit un acces a certaines variables utilisees et maintenues par l'interpreteur // glob : recherche de chemins de style Unix selon certains motifs
 from tkinter import *                               # module pour IHM python
 
-#========================#
-# VARIABLES ET FONCTIONS #
-#========================#
+#===========#
+# VARIABLES #
+#===========#
 # Variables
 #----------
 dictionnaire="dictionnaire.lst"
@@ -44,7 +44,12 @@ dictionnaire="dictionnaire.lst"
 rep_script=os.path.dirname(os.path.abspath(sys.argv[0]))
 os.chdir(rep_script)
 
-
+#===========#
+# FONCTIONS #
+#===========#
+def new_game():
+    frame_nbLettre.config(state='disabled')
+    print(varGr.get())
 
 
 
@@ -83,15 +88,21 @@ label_mot_6.grid(row=6)
 
 # zone de choix du nombre de lettres
 #-----------------------------------
+def new_game():
+    frame_nbLettre.config(state='disabled')
+    print(varGr.get())
+
 frame_nbLettre=Frame(root)
 frame_nbLettre.grid(row=1,column=2)
 label_nbLettre=Label(frame_nbLettre, text="choisissez du nombre de lettres")
 label_nbLettre.grid(row=1)
 vals=[5,6,7,8,9]
 varGr=IntVar(frame_nbLettre,vals[0])
-for i in range(5):
-    bouton=Radiobutton(frame_nbLettre, variable=varGr, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3)
-    bouton.grid(row=2,column=i)
+for i in range(len(vals)):
+    rBouton=Radiobutton(frame_nbLettre, variable=varGr, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3)
+    rBouton.grid(row=2,column=i)
+button_newGame=Button(root, text="Nouvelle partie",command=new_game)
+button_newGame.grid(row=3)
 
 
 
