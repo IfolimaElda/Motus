@@ -30,6 +30,7 @@
 #==========#
 import os,sys,glob,pathlib							# os : utiliser les fonctionnalites dependantes du systeme d'exploitation // sys : fournit un acces a certaines variables utilisees et maintenues par l'interpreteur // glob : recherche de chemins de style Unix selon certains motifs
 from tkinter import *                               # module pour IHM python
+from random import randint                          # module pour generer des nombre aléatoire      randint(min,max)
 
 #===========#
 # VARIABLES #
@@ -37,8 +38,9 @@ from tkinter import *                               # module pour IHM python
 # Variables
 #----------
 dictionnaire="dictionnaire.lst"
-vals=[5,6,7,8,9]                    # les differents niveau du jeu à x lettres.
-
+vals=(5,6,7,8,9)                    # les differents niveau du jeu à x lettres.
+global tour
+tour=1
 
 # on recupere l'emplacement du rep_script
 # on se deplace dans ce repertoire qui devient le repertoire de travail
@@ -49,31 +51,72 @@ os.chdir(rep_script)
 #===========#
 # FONCTIONS #
 #===========#
+def creationListeMot(fichier,nbLettre):                 # fonction pour créer la liste des mots correspondant au nombre de lettre
+    if os.path.isfile(fichier):
+        listeMot=[]
+        with open(fichier,"r") as fichier_dico:
+            for ligne in fichier_dico:
+                if len(ligne)==(nbLettre+1):                                                        # on ajoute 1 à cause de l'indice 0
+                    ligne=ligne.translate(ligne.maketrans("àâäéèëêïîöôüûù","aaaeeeeiioouuu"))       # on remplace les caractères spéciaux
+                    ligne=ligne.strip("\n")                                                         # on supprime le retour chariot
+                    ligne=ligne.upper()                                                             # on mets en majuscule
+                    listeMot.append(ligne)                                                          # on ajoute à la liste
+    else:
+        print("Le fichier de dictionnaire n'est pas disponible. Le programme s'arrête.")
+        quit()
+    listeMot=tri_unique_list(listeMot)
+    return listeMot
+
+def tri_unique_list(liste_in):
+	liste_out=set(liste_in)			# convertie la liste en set qui permet de n'avoir aucun element duplique
+	liste_out=list(liste_out)		# convertie le set en liste
+	liste_out.sort()				# trie la liste par ordre alphabetique
+	return liste_out
+
+def button_state(status):
+    if status:
+        for i in range(len(vals)):
+            rBouton=Radiobutton(frame_nbLettre, variable=var_nbLettre, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3)
+            rBouton.grid(row=2,column=i)
+        button_newGame.config(state="normal")
+        entry_saisi.config(state="disabled")
+        button_valide.config(state="disabled")
+        button_abandon.config(state="disabled")
+    else:
+        for i in range(len(vals)):
+            rBouton=Radiobutton(frame_nbLettre, variable=var_nbLettre, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3, state="disabled")
+            rBouton.grid(row=2,column=i)
+        button_newGame.config(state="disabled")
+        entry_saisi.config(state="normal")
+        button_valide.config(state="normal")
+        button_abandon.config(state="normal")
+
 def new_game():
-    tour=1
-    radiobutton_state(False)
-    print(var_nbLettre.get())
-    return tour
+    button_state(False)
+    creationListeMot(dictionnaire,var_nbLettre.get())
 
-def saisi():
-    print(var_saisi.get())
-    label_mot_{tour}.config(text=var_saisi.get())
-
-    tour+=1
+def affiche_mot(mot):
+    mot=StringVar()
+    i=1
+    global tour
+    # for m in mot:
+    #     label_mot=Label(frame_mots, text=m, font=("bold","32"))
+    #     label_mot.grid(row=tour,column=i)
+    #     i+=1
+    label_mot=Label(frame_mots, textvariable=mot, font=("bold","32"))
+    label_mot.grid(row=tour,column=i)
 
 def abandon():
-    radiobutton_state(True)
+    button_state(True)
     print("Espece de nul")
+    global tour
+    tour=1
 
-def radiobutton_state(status):
-    for i in range(len(vals)):
-        if status:
-            rBouton=Radiobutton(frame_nbLettre, variable=var_nbLettre, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3)
-            button_newGame.config(state="normal")
-        else:
-            rBouton=Radiobutton(frame_nbLettre, variable=var_nbLettre, text=vals[i], value=vals[i], indicatoron=0, borderwidth=3, state="disabled")
-            button_newGame.config(state="disabled")
-        rBouton.grid(row=2,column=i)
+def saisi():
+    global tour
+    entry_saisi.delete(0,last=99)           # on vide la zone de saisi
+    affiche_mot(var_saisi.get())
+    tour+=1
 
 
 #====================#
@@ -91,45 +134,38 @@ bg=PhotoImage(file=f"{rep_script}\motus_bg.png")
 label0=Label(root,image=bg)
 label0.place(x=0,y=0)
 
-# zone d'affichage des mots
-#--------------------------
-frame_mots=Frame(root)
-frame_mots.grid(row=1)
-label_mot_1=Label(frame_mots, text="trte", font=("bold","32"))
-label_mot_1.grid(row=1)
-label_mot_2=Label(frame_mots, text="trte", font=("bold","32"))
-label_mot_2.grid(row=2)
-label_mot_3=Label(frame_mots, text="trte", font=("bold","32"))
-label_mot_3.grid(row=3)
-label_mot_4=Label(frame_mots, text="trte", font=("bold","32"))
-label_mot_4.grid(row=4)
-label_mot_5=Label(frame_mots, text="trte", font=("bold","32"))
-label_mot_5.grid(row=5)
-label_mot_6=Label(frame_mots, text="trte", font=("bold","32"))
-label_mot_6.grid(row=6)
-
 # zone de choix du nombre de lettres
 #-----------------------------------
 frame_nbLettre=Frame(root)
-frame_nbLettre.grid(row=1,column=2)
+frame_nbLettre.grid(row=1,column=1)
 label_nbLettre=Label(frame_nbLettre, text="choisissez du nombre de lettres")
 label_nbLettre.grid(row=1)
 button_newGame=Button(frame_nbLettre, text="Nouvelle partie",command=new_game)
 button_newGame.grid(row=3)
 var_nbLettre=IntVar(frame_nbLettre,vals[0])
-radiobutton_state(True)
 
 # zone de saisi
 #--------------
 frame_saisi=Frame(root)
-frame_saisi.grid(row=2,column=2)
+frame_saisi.grid(row=2,column=1)
 var_saisi=StringVar()
-entry_saisi=Entry(frame_saisi, textvariable=var_saisi, width=25)
+entry_saisi=Entry(frame_saisi, textvariable=var_saisi, width=25, state="disabled")
 entry_saisi.grid(row=1,column=1)
-button_valide=Button(frame_saisi, text="Valider",command=saisi)
+button_valide=Button(frame_saisi, text="Valider",command=saisi, state="disabled")
 button_valide.grid(row=3,column=1)
-button_abandon=Button(frame_saisi, text="Abandonner",command=abandon)
+button_abandon=Button(frame_saisi, text="Abandonner",command=abandon, state="disabled")
 button_abandon.grid(row=3,column=2)
+
+# zone d'affichage des mots
+#--------------------------
+frame_mots=Frame(root)
+frame_mots.grid(row=1,column=2)
+
+# modification du status du jeu
+# True = en mode saisi des mots ; False = en mode choix de la difficulté
+#-----------------------------------------------------------------------
+button_state(True)
+
 
 root.mainloop()
 #==================#
